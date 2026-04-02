@@ -10,7 +10,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.testing.route import testing
+from app.user.route import user
 from common.customized_log import CustomizeLogger
+from shared.db import Base, engine
 
 """
 code for save logs in customise path
@@ -18,6 +20,7 @@ code for save logs in customise path
 logger = logging.getLogger(__name__)
 module_path = str(pathlib.Path(__file__).parent.absolute())
 config_path = str(os.path.join(module_path, "config", "logging_config.json"))
+Base.metadata.create_all(bind=engine)
 
 
 def create_app() -> FastAPI:
@@ -44,6 +47,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(testing, tags=['test'])
+    app.include_router(user,tags=['user'])
     return app
 
 

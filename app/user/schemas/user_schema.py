@@ -24,3 +24,4 @@ class UserResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
