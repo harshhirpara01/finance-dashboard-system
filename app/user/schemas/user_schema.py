@@ -25,3 +25,17 @@ class UserResponseSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+class UpdateUserSchema(BaseModel):
+    full_name: Optional[str] = Field(None, min_length=2, max_length=100)
+    email: Optional[EmailStr] = None
+    role: Optional[Literal["viewer", "analyst", "admin"]] = None
+    country: Optional[str] = None
+
+
+class BlockUserSchema(BaseModel):
+    is_blocked: bool
+
+
+class StatusUserSchema(BaseModel):
+    is_active: bool

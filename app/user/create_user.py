@@ -8,14 +8,13 @@ from common.responses import *
 from .route import user
 from app.user.schemas.user_schema import CreateUserSchema
 import hashlib
-from common.common_function import hash_password
-
-
-
+from common.common_function import hash_password, admin_required
 
 
 @user.post("/Create-User")
-def create_user(payload : CreateUserSchema,db:Session = Depends(get_db)):
+def create_user(payload : CreateUserSchema,db:Session = Depends(get_db),
+                Current_user: Create_User = Depends(admin_required)
+):
     try:
 
         existing_user = db.query(Create_User).filter(
