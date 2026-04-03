@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.testing.route import testing
 from app.user.route import user
+from app.financial_records.route import records
+
 from common.customized_log import CustomizeLogger
 from shared.db import Base, engine
 
@@ -48,7 +50,7 @@ def create_app() -> FastAPI:
 
     app.include_router(testing, tags=['test'])
     app.include_router(user,tags=['user'])
-    app.include_router()
+    app.include_router(records,tags=['financial_records'])
     return app
 
 

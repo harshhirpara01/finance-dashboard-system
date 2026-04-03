@@ -42,7 +42,7 @@ def create_token(email, uid,role):
     try:
         uniq_key = uuid.uuid4().hex
         now = datetime.utcnow()
-        expire = now + timedelta(minutes=5)
+        expire = now + timedelta(minutes=30)
         token_details = {
             "email": email,
             "id": uid,
