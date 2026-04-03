@@ -6,13 +6,15 @@ from fastapi import HTTPException
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
 import os
 from dotenv import load_dotenv
 from jose import JWTError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+
 
 from app.user.models.create_user import Create_User
-from common.responses import errorResponse
+from common.responses import errorResponse, successResponse
 from shared.db import get_db
 
 load_dotenv()
@@ -58,9 +60,9 @@ def create_token(email, uid,role):
         return {"code": 500, "status": "error", "message": f"Exception occurred while creating token: {e}"}
 
 
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
 ):
     token = credentials.credentials
 
@@ -69,46 +71,35 @@ def get_current_user(
 
         user_id = payload.get("id")
         email = payload.get("email")
+        role = payload.get("role")
 
-        if user_id is None:
+        if user_id is None or email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
             )
+        return {
+            "id": user_id,
+            "email": email,
+            "role": role
+        }
 
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired"
+        )
+
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token is invalid or expired"
         )
-
-    # DB se user fetch karo
-    user = db.query(Create_User).filter(
-        Create_User.id == user_id,
-        Create_User.is_deleted == False
-    ).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is inactive"
-        )
-
-    if user.is_blocked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is blocked"
-        )
-
-    return user
-
-
 def admin_required(current_user: Create_User = Depends(get_current_user)):
     if current_user.role != "admin":
         return errorResponse(

@@ -8,14 +8,20 @@ from common.responses import *
 from .route import user
 from app.user.schemas.user_schema import CreateUserSchema
 import hashlib
-from common.common_function import hash_password, admin_required
+from common.common_function import hash_password, admin_required, get_current_user
 
 
 @user.post("/Create-User")
 def create_user(payload : CreateUserSchema,db:Session = Depends(get_db),
-                Current_user: Create_User = Depends(admin_required)
+                current_user = Depends(get_current_user)
 ):
     try:
+
+        if current_user["role"] != "admin":
+            return errorResponse(
+                status.HTTP_403_FORBIDDEN,
+                "Access denied: Admins only"
+            )
 
         existing_user = db.query(Create_User).filter(
             Create_User.email == payload.email,
@@ -27,7 +33,6 @@ def create_user(payload : CreateUserSchema,db:Session = Depends(get_db),
         if existing_user:
             return errorResponse(status.HTTP_400_BAD_REQUEST,msg="User with this email already exists")
 
-        # hashed_password = pwd_context.hash(payload.password)
 
         hashed_password = hash_password(payload.password)
 

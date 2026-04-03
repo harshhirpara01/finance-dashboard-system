@@ -1,5 +1,6 @@
 import traceback
 
+from common.common_function import get_current_user
 from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
 from . import Create_User
@@ -13,8 +14,16 @@ from .schemas.user_schema import UpdateUserSchema
 
 
 @user.patch("/User_Update/{user_id}")
-def update_user(user_id: int, payload: UpdateUserSchema, db: Session = Depends(get_db)):
+def update_user(user_id: int, payload: UpdateUserSchema, db: Session = Depends(get_db),
+                current_user = Depends(get_current_user)):
     try:
+
+        if current_user["role"] != "admin":
+            return errorResponse(
+                status.HTTP_403_FORBIDDEN,
+                "Access denied: Admins only"
+            )
+
         user_data = db.query(Create_User).filter(
             Create_User.id == user_id,
             Create_User.is_deleted == False

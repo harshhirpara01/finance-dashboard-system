@@ -1,5 +1,6 @@
-import traceback
 
+import traceback
+from datetime import datetime
 from common.common_function import get_current_user
 from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
@@ -9,13 +10,16 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
 
+from .schemas.user_schema import StatusUserSchema
 
-from .schemas.user_schema import BlockUserSchema
 
-
-@user.patch("/User/Block-Unblock/{user_id}")
-def block_unblock_user(user_id: int, payload: BlockUserSchema, db: Session = Depends(get_db),
-                       current_user = Depends(get_current_user)):
+@user.patch("/User-Status-Update/{user_id}")
+def update_user_status(
+    user_id: int,
+    payload: StatusUserSchema,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     try:
         if current_user["role"] != "admin":
             return errorResponse(
@@ -31,20 +35,20 @@ def block_unblock_user(user_id: int, payload: BlockUserSchema, db: Session = Dep
         if not user_data:
             return errorResponse(
                 status.HTTP_404_NOT_FOUND,
-                msg="User not found"
+                "User not found"
             )
 
-        user_data.is_blocked = payload.is_blocked
-
+        user_data.is_active = payload.is_active
         db.commit()
         db.refresh(user_data)
 
-        message = "User blocked successfully" if payload.is_blocked else "User unblocked successfully"
-
         return successResponse(
             status.HTTP_200_OK,
-            message,
-            jsonable_encoder(user_data)
+            "User status updated successfully",
+            {
+                "id": user_data.id,
+                "is_active": user_data.is_active
+            }
         )
 
     except Exception:

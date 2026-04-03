@@ -1,5 +1,6 @@
-import traceback
 
+import traceback
+from datetime import datetime
 from common.common_function import get_current_user
 from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
@@ -10,12 +11,10 @@ from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
 
 
-from .schemas.user_schema import BlockUserSchema
 
-
-@user.patch("/User/Block-Unblock/{user_id}")
-def block_unblock_user(user_id: int, payload: BlockUserSchema, db: Session = Depends(get_db),
-                       current_user = Depends(get_current_user)):
+@user.delete("/Delete-User/{user_id}")
+def soft_delete_user(user_id: int, db: Session = Depends(get_db),
+                     current_user = Depends(get_current_user)):
     try:
         if current_user["role"] != "admin":
             return errorResponse(
@@ -34,17 +33,15 @@ def block_unblock_user(user_id: int, payload: BlockUserSchema, db: Session = Dep
                 msg="User not found"
             )
 
-        user_data.is_blocked = payload.is_blocked
+        user_data.is_deleted = True
+        user_data.deleted_at = datetime.utcnow()
 
         db.commit()
-        db.refresh(user_data)
-
-        message = "User blocked successfully" if payload.is_blocked else "User unblocked successfully"
 
         return successResponse(
             status.HTTP_200_OK,
-            message,
-            jsonable_encoder(user_data)
+            "User deleted successfully",
+            {}
         )
 
     except Exception:
