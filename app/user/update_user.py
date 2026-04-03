@@ -32,7 +32,7 @@ def update_user(user_id: int, payload: UpdateUserSchema, db: Session = Depends(g
         if not user_data:
             return errorResponse(
                 status.HTTP_404_NOT_FOUND,
-                msg="User not found"
+                "User not found"
             )
 
         if payload.email and payload.email != user_data.email:
@@ -45,7 +45,7 @@ def update_user(user_id: int, payload: UpdateUserSchema, db: Session = Depends(g
             if existing_user:
                 return errorResponse(
                     status.HTTP_400_BAD_REQUEST,
-                    msg="User with this email already exists"
+                    "User with this email already exists"
                 )
 
         update_data = payload.model_dump(exclude_unset=True)

@@ -41,14 +41,15 @@ def update_user_status(
         user_data.is_active = payload.is_active
         db.commit()
         db.refresh(user_data)
-
+        data = {
+            "id": user_data.id,
+            "is_active": user_data.is_active
+        }
         return successResponse(
             status.HTTP_200_OK,
             "User status updated successfully",
-            {
-                "id": user_data.id,
-                "is_active": user_data.is_active
-            }
+
+            jsonable_encoder(data)
         )
 
     except Exception:

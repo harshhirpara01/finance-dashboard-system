@@ -17,7 +17,7 @@ from typing import Optional
 from datetime import date
 
 
-@records.get("/Get-Record-By_ID/{record_id}")
+@records.get("/Get-Record-By-ID/{record_id}")
 def get_record_by_id(
     record_id: int,
     db: Session = Depends(get_db),
