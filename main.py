@@ -48,6 +48,7 @@ def create_app() -> FastAPI:
 
     app.include_router(testing, tags=['test'])
     app.include_router(user,tags=['user'])
+    app.include_router()
     return app
 
 
