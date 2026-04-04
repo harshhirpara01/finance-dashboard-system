@@ -12,7 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.user.route import user
 from app.financial_records.route import records
 from app.dashboard.route import dashboard
-from common.customized_log import CustomizeLogger
 from shared.db import Base, engine
 
 """
@@ -38,8 +37,7 @@ def create_app() -> FastAPI:
         debug=False,
     )
 
-    logger = CustomizeLogger.make_logger(config_path)
-    app.logger = logger
+
 
     origins = [
         "*"
