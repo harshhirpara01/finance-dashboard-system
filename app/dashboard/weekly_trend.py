@@ -1,18 +1,15 @@
 import traceback
 from datetime import datetime
-
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
 from shared.db import get_db
 from common.responses import successResponse, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from common.common_function import get_current_user
-
 from app.user.models.create_user import Create_User
 from app.financial_records.models.financial_record import FinancialRecord
 from .route import dashboard
-from sqlalchemy import func, extract, case
+from sqlalchemy import func, case
 
 
 
@@ -20,7 +17,7 @@ from sqlalchemy import func, extract, case
 @dashboard.get("/Weekly-Trends")
 def get_weekly_trends(
     db: Session = Depends(get_db),
-    # current_user: Create_User = Depends(get_current_user)
+    current_user: Create_User = Depends(get_current_user)
 ):
     try:
         results = db.query(
@@ -80,7 +77,7 @@ def get_weekly_trends(
         return successResponse(
             status.HTTP_200_OK,
             "Weekly trends fetched successfully",
-            response_data
+            jsonable_encoder(response_data)
         )
 
     except Exception:

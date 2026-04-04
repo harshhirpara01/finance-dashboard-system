@@ -1,5 +1,4 @@
 import traceback
-
 from common.common_function import verify_password, create_token
 from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
@@ -8,7 +7,6 @@ from .route import user
 from sqlalchemy.orm import Session
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
-
 from .schemas.login_schema import LoginSchema
 
 
@@ -23,19 +21,19 @@ def login(payload:LoginSchema,db:Session = Depends(get_db)):
         if not user_data:
             return errorResponse(
                 status.HTTP_404_NOT_FOUND,
-                msg="User not found"
+                "User not found"
             )
 
         if user_data.is_blocked:
             return errorResponse(
                 status.HTTP_403_FORBIDDEN,
-                msg="User is blocked"
+                "User is blocked"
             )
 
         if not verify_password(payload.password, user_data.password_hash):
             return errorResponse(
                 status.HTTP_401_UNAUTHORIZED,
-                msg="Invalid password"
+                "Invalid password"
             )
 
 

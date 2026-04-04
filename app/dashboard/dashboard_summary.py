@@ -1,14 +1,11 @@
 import traceback
 from datetime import datetime
-
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
 from shared.db import get_db
 from common.responses import successResponse, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from common.common_function import get_current_user
-
 from app.user.models.create_user import Create_User
 from app.financial_records.models.financial_record import FinancialRecord
 from .route import dashboard

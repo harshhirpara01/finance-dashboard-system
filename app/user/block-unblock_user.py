@@ -1,15 +1,12 @@
 import traceback
-
 from common.common_function import get_current_user
-from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
+from common.responses import successResponse, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
 from . import Create_User
 from .route import user
 from sqlalchemy.orm import Session
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
-
-
 from .schemas.user_schema import BlockUserSchema
 
 
@@ -31,7 +28,7 @@ def block_unblock_user(user_id: int, payload: BlockUserSchema, db: Session = Dep
         if not user_data:
             return errorResponse(
                 status.HTTP_404_NOT_FOUND,
-                msg="User not found"
+                "User not found"
             )
 
         user_data.is_blocked = payload.is_blocked

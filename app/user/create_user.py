@@ -7,8 +7,7 @@ from shared.db import get_db
 from common.responses import *
 from .route import user
 from app.user.schemas.user_schema import CreateUserSchema
-import hashlib
-from common.common_function import hash_password, admin_required, get_current_user
+from common.common_function import hash_password, get_current_user
 
 
 @user.post("/Create-User")
@@ -51,7 +50,7 @@ def create_user(payload : CreateUserSchema,db:Session = Depends(get_db),
         db.commit()
         db.refresh(new_user)
 
-        return successResponse(status.HTTP_200_OK, HSM_SUCCESS,jsonable_encoder(new_user))
+        return successResponse(status.HTTP_200_OK, "User Created Successfully",jsonable_encoder(new_user))
 
     except Exception as e:
         traceback.print_exc()

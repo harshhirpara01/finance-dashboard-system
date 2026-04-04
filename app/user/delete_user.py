@@ -1,14 +1,12 @@
-
 import traceback
 from datetime import datetime
 from common.common_function import get_current_user
-from common.responses import successResponse, HSM_SUCCESS, errorResponse, HEM_INTERNAL_SERVER_ERROR
+from common.responses import successResponse, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from shared.db import get_db
 from . import Create_User
 from .route import user
 from sqlalchemy.orm import Session
 from fastapi import Depends, status
-from fastapi.encoders import jsonable_encoder
 
 
 
@@ -30,7 +28,7 @@ def soft_delete_user(user_id: int, db: Session = Depends(get_db),
         if not user_data:
             return errorResponse(
                 status.HTTP_404_NOT_FOUND,
-                msg="User not found"
+                "User not found"
             )
 
         user_data.is_deleted = True
@@ -41,7 +39,6 @@ def soft_delete_user(user_id: int, db: Session = Depends(get_db),
         return successResponse(
             status.HTTP_200_OK,
             "User deleted successfully",
-            {}
         )
 
     except Exception:

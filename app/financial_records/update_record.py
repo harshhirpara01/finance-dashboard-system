@@ -1,13 +1,10 @@
 import traceback
-
 from fastapi import Depends, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
 from shared.db import get_db
 from common.responses import successResponse, errorResponse, HEM_INTERNAL_SERVER_ERROR
 from common.common_function import get_current_user
-
 from app.user.models.create_user import Create_User
 from .models.financial_record import FinancialRecord
 from .route import records
@@ -22,10 +19,10 @@ def update_record(
     current_user: Create_User = Depends(get_current_user)
 ):
     try:
-        if current_user['role'] == "viewer":
+        if current_user['role'] != "admin":
             return errorResponse(
                 status.HTTP_403_FORBIDDEN,
-                "Access denied: Admins And Analyst only"
+                "Access denied: Admins only"
             )
 
         record_data = db.query(FinancialRecord).filter(
