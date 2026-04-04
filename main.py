@@ -9,7 +9,6 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.testing.route import testing
 from app.user.route import user
 from app.financial_records.route import records
 from app.dashboard.route import dashboard
@@ -27,10 +26,16 @@ Base.metadata.create_all(bind=engine)
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        docs_url="/docs" ,
+        docs_url="/docs",
         redoc_url="/redoc",
-        title=' Chain Arbitrage | LOGIN API',
-        debug=False
+        openapi_url="/openapi.json",
+        title="Finance Dashboard API",
+        description=(
+            "REST API for user management, financial records, and dashboard summaries. "
+            "Use **Authorize** in Swagger UI with `Bearer <access_token>` after logging in."
+        ),
+        version="1.0.0",
+        debug=False,
     )
 
     logger = CustomizeLogger.make_logger(config_path)
@@ -48,7 +53,6 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(testing, tags=['test'])
     app.include_router(user,tags=['user'])
     app.include_router(records,tags=['financial_records'])
     app.include_router(dashboard,tags=['dashboard-summary'])
