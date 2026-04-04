@@ -18,6 +18,40 @@ Backend for a finance dashboard: **FastAPI**, **SQLAlchemy**, **SQLite** (`finan
 - **Auth:** Login returns a bearer token; protected routes use `HTTPBearer`.
 - **Financial records:** Create, list, filter (type, category, date range), update, soft delete.
 - **Dashboard:** Summary totals, category breakdown, recent activity, monthly/weekly trends.
+- **Uniform JSON responses:** Business logic uses two shared helpers so success and error bodies follow the same shape across APIs (see below).
+
+## Standard API responses (advanced)
+
+Handlers intentionally avoid ad-hoc JSON. They call **`successResponse`** and **`errorResponse`** from [`common/responses.py`](common/responses.py), so clients always get a predictable envelope:
+
+| Field | Success | Error |
+|--------|---------|--------|
+| `status` | `"success"` | `"error"` |
+| `message` | Human-readable message | Human-readable message |
+| `data` | Payload (object, list, etc.) | Optional extra context (often `{}`) |
+
+Example success:
+
+```json
+{
+  "status": "success",
+  "message": "Login successful",
+  "data": { "access_token": "...", "token_type": "bearer", "user": { } }
+}
+```
+
+Example error (from your helpers):
+
+```json
+{
+  "status": "error",
+  "message": "Access denied: Admins only",
+  "data": {}
+}
+```
+
+This keeps **frontend and API tests simple**: check `status`, read `message`, use `data` for the real content.  
+**Note:** FastAPI itself may still return its default JSON for some **dependency-level** failures (for example invalid or expired JWT on `HTTPBearer`), which is not wrapped by `errorResponse`. Everything that returns `successResponse` / `errorResponse` follows the table above.
 
 ## Prerequisites
 
@@ -194,7 +228,7 @@ Exact role checks are implemented in each handler; use `/docs` to see request/re
 - `app/financial_records/` — records CRUD and filters.
 - `app/dashboard/` — aggregates and trends.
 - `shared/db.py` — SQLite URL and session.
-- `common/` — JWT, password hashing, shared responses.
+- `common/` — JWT, password hashing, and **`successResponse` / `errorResponse`** for a single API response contract.
 
 ---
 
